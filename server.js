@@ -24,13 +24,15 @@ app.get('/', async (req, res) => {
         const tracks = response.data.results;
         if (tracks && tracks.length > 0) {
             tracks.forEach(track => {
-                // Ovaina ho HTTP tsotra ny rohy audio mba ho zakan'ilay finday kely tsy misy crash
-                const httpAudio = track.audio.replace("https://", "http://");
+                // VAHAOLANA: Ovaina ho HTTP tsotra ary soloina '&amp;' ny '&' rehetra mba tsy hisy fahadisoana XML intsony
+                let httpAudio = track.audio.replace("https://", "http://");
+                let safeAudioUrl = httpAudio.replace(/&/g, "&amp;");
+                
                 tracksHtml += `
                 <div style="border-bottom:1px dashed #000; padding:5px 0;">
                     - <b>${track.name}</b><br/>
                     <small>Artiste: ${track.artist_name}</small><br/>
-                    <a href="${httpAudio}" style="color:blue; font-weight:bold;">[ TELECHARGER ]</a>
+                    <a href="${safeAudioUrl}" style="color:blue; font-weight:bold;">[ TELECHARGER ]</a>
                 </div>`;
             });
         } else {
