@@ -3,7 +3,7 @@ const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const JAMENDO_CLIENT_ID = 'YOUR_JAMENDO_CLIENT_ID_HERE'; // Soloina ilay Client ID-nao teo
+const JAMENDO_CLIENT_ID = '7b33265e'; // Soloina ilay Client ID-nao teo
 
 // API fikarohana mamoaka JSON maivana
 app.get('/api/search', async (req, res) => {
