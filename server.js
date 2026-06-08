@@ -3,7 +3,7 @@ const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const JAMENDO_CLIENT_ID = '7b33265e'; // Ilay Client ID-nao efa miasa
+const JAMENDO_CLIENT_ID = '7b33265e';
 
 app.get('/', async (req, res) => {
     const query = req.query.q || 'gasy';
@@ -14,7 +14,7 @@ app.get('/', async (req, res) => {
             params: {
                 client_id: JAMENDO_CLIENT_ID,
                 format: 'json',
-                limit: 12,
+                limit: 10,
                 search: query
             }
         });
@@ -23,47 +23,47 @@ app.get('/', async (req, res) => {
         if (tracks && tracks.length > 0) {
             for (let i = 0; i < tracks.length; i++) {
                 let track = tracks[i];
-                // Ovaina ho HTTP tsotra sy sivanina ny marika '&' ho an'ny WAP
                 let httpAudio = track.audio.replace("https://", "http://");
                 let safeAudioUrl = httpAudio.replace(/&/g, "&amp;");
                 
-                // Atambatra amin'ny alalan'ny "+" tsotra fa tsy mampiasa "`" na "${}"
-                tracksHtml += '<div style="border-bottom:1px dashed #000; padding:5px 0;">' +
-                              '- <b>' + track.name + '</b><br/>' +
-                              '<small>Artiste: ' + track.artist_name + '</small><br/>' +
-                              '<a href="' + safeAudioUrl + '" style="color:blue; font-weight:bold;">[ TELECHARGER ]</a>' +
-                              '</div>';
+                // HTML tsotra be tsy misy CSS mavesatra
+                tracksHtml += '<p>' +
+                              '<b>' + track.name + '</b><br/>' +
+                              'Artiste: ' + track.artist_name + '<br/>' +
+                              '<a href="' + safeAudioUrl + '">[ TELECHARGER ]</a>' +
+                              '</p><hr/>';
             }
         } else {
-            tracksHtml = '<p style="color:red;"><small>Tsy misy hira hita.</small></p>';
+            tracksHtml = '<p>Tsy misy hira hita.</p>';
         }
     } catch (error) {
-        tracksHtml = '<p style="color:red;"><small>Nisy olana kely ny fikarohana.</small></p>';
+        tracksHtml = '<p>Nisy olana kely.</p>';
     }
 
-    // Pejy XHTML Mobile madio tsy misy Javascript mampavesatra ny finday kely
-    res.setHeader('Content-Type', 'application/xhtml+xml; charset=utf-8');
+    // NY MAJIKA: Terena ho "text/html" tsotra fa tsy "xhtml+xml" mba tsy hanao Erreur Inconnu intsony
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
     
-    let htmlResponse = '<?xml version="1.0" encoding="utf-8"?>' +
-    '<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd">' +
-    '<html xmlns="http://www.w3.org/1999/xhtml">' +
-    '<head><title>WapHira Gasy</title></head>' +
-    '<body style="background-color:#003366; color:#ffffff; font-family:monospace; padding:5px;">' +
-    '<div style="text-align:center; background-color:#ffff00; color:#000000; padding:5px;">' +
-    '<b>WapHira Gasy</b><br/><small>Jamendo MP3 Render Version</small>' +
-    '</div>' +
-    '<div style="margin-top:10px; text-align:center;">' +
+    // Nesorina koa ilay andalana <?xml version...?> teo aloha satria misy finday kely tsy mahazaka azy
+    let htmlResponse = '<html><head><title>WapHira Gasy</title></head>' +
+    '<body bgcolor="#003366" text="#ffffff">' +
+    '<center>' +
+    '<h2>WapHira Gasy</h2>' +
+    '<font size="2">Jamendo MP3 WAP</font>' +
+    '<br/><br/>' +
     '<form action="/" method="get">' +
-    'Katsaho:<br/>' +
-    '<input type="text" name="q" value="' + (query === 'gasy' ? '' : query) + '" size="15" /><br/>' +
-    '<input type="submit" value="RECHERCHER" />' +
+    'Tadiavina: <input type="text" name="q" value="' + (query === 'gasy' ? '' : query) + '" size="10"/>' +
+    '<input type="submit" value="OK"/>' +
     '</form>' +
-    '</div>' +
-    '<div style="margin-top:10px; background-color:#ffffff; color:#000000; padding:5px;">' +
+    '</center>' +
+    '<br/>' +
+    '<font color="#000000">' +
+    '<table bgcolor="#ffffff" width="100%"><tr><td>' +
     '<b>Hira azo alaina:</b><br/>' +
     tracksHtml +
-    '</div>' +
-    '<div style="text-align:center; margin-top:15px; font-size:x-small;">&copy; 2026 - Kelitech WAP</div>' +
+    '</td></tr></table>' +
+    '</font>' +
+    '<br/>' +
+    '<center><font size="1">&copy; 2026 - Kelitech</font></center>' +
     '</body></html>';
 
     res.send(htmlResponse);
